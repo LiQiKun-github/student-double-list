@@ -15,17 +15,22 @@ typedef struct student
 
 Student *take_Off_Node(Student** head, Student** tail,Student *p)
 {
-	if (*head == p)
+	if (*head == p || *tail == p)
 	{
-		*head = p->next;
-		p->next->last = NULL;
+		if (*head == p)
+		{
+			*head = p->next;
+			if (p->next != NULL)p->next->last = NULL;
+			//else *head = NULL;
+		}
+		if (*tail == p)
+		{
+			*tail = p->last;
+			if (p->last != NULL)p->last->next = NULL;
+			//else *tail = NULL;
+		}
 	}
-	else if (*tail == p)
-	{
-		*tail = p->last;
-		p->last->next = NULL;
-	}
-	else {
+	else if (*head != p&& *tail != p) {
 		p->last->next = p->next;
 		p->next->last = p->last;
 	}
@@ -62,7 +67,7 @@ void head_insert(Student **head,Student* p,Student **tail)
 
 void print_One_Student(Student *head)
 {
-	printf("id:%d\n", head->id);
+	printf("p=%p,id:%d\n", &(head->id),head->id);
 }
 
 
@@ -110,11 +115,36 @@ void delete_student(Student **head, Student** tail)
 	delete_Node(temp);
 }
 
-void sort_Studnet(Student* head)
+Student* find_Min_Node(Student* head)
 {
-	Student a = *head;
-	*head = *(head->next);
-	*(head->next) = a;
+	Student *min_node = head;
+	while (head != NULL)
+	{
+		if (min_node->id > head->id)
+		{
+			min_node = head;
+		}
+		head = head->next;
+	}
+	return min_node;
+}
+
+void sort_Studnet(Student** head, Student** tail)
+{
+	//Student a = *head;
+	//*head = *(head->next);
+	//*(head->next) = a;
+	Student* new_head = NULL;
+	Student* new_tail = NULL;
+	while (*head != NULL)
+	{
+		Student* temp = find_Min_Node(*head);
+		take_Off_Node(head, tail, temp);
+		head_insert(&new_head,temp , &new_tail);
+	}
+	*head = new_head;
+	*tail = new_tail;
+	print_All_Student(*tail);
 }
 
 int main()
@@ -133,7 +163,7 @@ int main()
 		case '3':break;// 更改学生信息
 		case '4':break;// 查找学生信息
 		case '5':print_All_Student(tail); break;// 显示所有学生信息
-		case '6':sort_Studnet(head); break;// 排序
+		case '6':sort_Studnet(&head,&tail); break;// 排序
 		case '7':return;// 退出
 		}
 	}
